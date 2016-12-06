@@ -78,8 +78,14 @@ This switch will list the configuration file contents
 .PARAMETER EditVars
 This switch will let you change the configuration file variables such as email info, and log paths
 
+.PARAMETER CustomAutoDelete
+If you use this parameter when adding a vm to your configuration file you will be prompted to enter how long you want to retain your backups.  You will get one prompt for each day you selected to perform a backup.
+
+.PARAMETER Platform
+This option can be used to specify if you are backing up a vm running on VMware or Hyper-V platform.  This defaults to VMware.
+
 .NOTES
-Version: 1.3
+Version: 1.4
 Author:	  Micah Rogers
 Created:  August 2016
 Configuration file should be in xml format
@@ -117,7 +123,8 @@ param(
 	[string]$VmBackupReportHeader = ("VM backup results for " + (Get-Date -Format yyyy-MM-dd)),
 	[Switch]$ListConfig,
 	[Switch]$EditVars,
-	[Alias("CAD")][Switch]$CustomAutoDelete
+	[Alias("CAD")][Switch]$CustomAutoDelete,
+	[ValidateSet("HyperV","Hyper-V","VMware")][string]$Platform = "VMware"
 )
 
 Function writeToLog ($msg) {
@@ -415,7 +422,6 @@ writeToLog("Loading VeeamToolkit")
 #Initiate backup process
 #Create table for email
 addToEmail("<table border='0' cellpadding='0' cellspacing='0' width='100%'>")
-#if ($vm -and $destination -and $Compression -and $AutoDelete) {
 if ($vm) {
 	$veeamLogCont = $null
 	$veeamLogStatus = $null
@@ -429,7 +435,12 @@ if ($vm) {
 	writeToLog("-Set to auto delete $AutoDelete")
 	
 	#Validate any parameters
-	$vmentity = Find-VBRViEntity -Name $vm
+	if ($Platform -like "Hyper*") {
+		$vmentity = Find-VBRHvEntity -Name $vm
+	} 
+	if ($Platform -like "VMware*") {
+		$vmentity = Find-VBRViEntity -Name $vm
+	}
 	if ($vmentity -eq $null) {
 	  Write-Host "VM: $vm not found" -ForegroundColor "red"
 	  writeToLog("VM: $vm not found")
@@ -467,7 +478,12 @@ if ($vm) {
 			writeToLog("-Set to auto delete $AutoDelete")
 			
 			#Validate any parameters
-			$vmentity = Find-VBRViEntity -Name $vm
+			if ($Platform -like "Hyper*") {
+				$vmentity = Find-VBRHvEntity -Name $vm
+			} 
+			if ($Platform -like "VMware*") {
+				$vmentity = Find-VBRViEntity -Name $vm
+			}
 			if ($vmentity -eq $null) {
 			  Write-Host "VM: $vm not found" -ForegroundColor "red"
 			  writeToLog("VM: $vm not found")
@@ -519,7 +535,8 @@ if ($MonthlyArchive) {
  1.1 : Added functionality to use a -config switch to specify an alternate configuration file or use -vm switch to specify a single VM with specific parameters or using default parameters
  1.2 : Added functionality to use -AddVM or -RemoveVM to add or remove a vm in the configuration file.  Also added -ListVMs to just show a list of vms already in your configuration file
  1.3 : Added functionality to use -CustomDays when adding a vm to your config file.  Added -VmBackupReportHeader to set a custom header on email notification.  Added -ListConfig to show a list of vms and their settings as well as the other variables in the configuration file.  Added -EditVars to modify the email info and log paths in the configuration file.  Various other improvements.
- 
+ 1.4 : Added functionality to use -CustomAutoDelete when adding a vm to your configuration file.  Also added the ability to specify if you want to backup a vm on VMware or Hyper-V using -Platform <platform>
+  
 #> 
 
 
