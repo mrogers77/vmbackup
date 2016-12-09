@@ -12,3 +12,4 @@ Setup Instructions:
 3. Run the script as many times as you need with the -AddVM flag to add your vms to the configuration file.  You can also use other flags with this to specify the days in which you want that vm backed up (-CustomDays 0,1,2,3,4,5,6) or the retention policy for it (-CustomAutoDelete).
 
 4. Run the script with the -RemoveVM flag twice.  Once you can remove SampleVM1 and again to remove SampleVM2.
+
