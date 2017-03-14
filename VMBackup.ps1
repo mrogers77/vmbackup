@@ -140,6 +140,7 @@ $CustDays = ,$CustomDays
 
 #Determine Day and which command variables to run
 $dayOfWeek = (Get-Date).dayOfWeek.value__
+$dayOfWeek = "$dayOfWeek"
 $dayOfMonth = (Get-Date).day
 
 function setVars() {
